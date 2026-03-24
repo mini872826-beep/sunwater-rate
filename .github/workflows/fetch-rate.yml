@@ -1,0 +1,23 @@
+name: 每日抓取鑽石比例
+on:
+  schedule:
+    - cron: '30 1 * * 1-5'
+    - cron: '30 5 * * 1-5'
+  workflow_dispatch:
+jobs:
+  fetch-rate:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+      - name: 抓取台銀 CNY 現金賣出比例
+        run: python3 fetch_rate.py
+      - name: Commit and Push rate.json
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add rate.json
+          git diff --staged --quiet || git commit -m "chore: update rate.json"
+          git push
